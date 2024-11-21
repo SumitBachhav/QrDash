@@ -41,7 +41,8 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.4",
     "react-qr-code": "^2.0.15",
-    "expo-camera": "~16.0.6"
+    "expo-camera": "~16.0.6",
+    "expo-clipboard": "~7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

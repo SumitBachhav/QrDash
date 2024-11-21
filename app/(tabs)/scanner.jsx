@@ -1,8 +1,7 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
 import { Button, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter} from 'expo-router';
-import DisplayData from '../show_data';
+import { useRouter } from 'expo-router';
 
 export default function Scanner() {
   const [facing, setFacing] = useState('back');
@@ -12,39 +11,58 @@ export default function Scanner() {
   let throttleTimer;
   let isExecuted = false;
 
-function showData(data) {
-  if (!isExecuted) {
-    isExecuted = true; // Mark as executed
-    console.log(data);
-    // router.push({
-    //   pathname: '/show_data',
-    //   // params: {
-    //   //   data: data
-    //   // }
-    //   params: {
-    //     name: "John Doe",
-    //     age: "30", // Query parameters are strings
-    //   },
-    // })
-    router.push(`/show_data?data=${data}`)
-}
-  if (!throttleTimer) {
-    throttleTimer = setTimeout(() => {
-      isExecuted = false;
-      console.log("Function executed after throttleeeeeee!");
-      throttleTimer = null;
-    }, 1000); // Execute every 1000ms (1 second)
+  const fakeData = {
+    Name: 'Alice Smith',
+    Age: '28',
+    Occupation: 'Graphic Designer',
+    Location: 'New York, USA',
+    Email: 'alice.smith@email.com',
+    Phone: '+1 (555) 123-4567',
+    Company: 'DesignWorks Studio',
+    Hobbies: 'Painting, Cycling, Photography',
+    Bio: 'Creative designer with a passion for art and technology.',
+    SocialMedia: 'https://twitter.com/alicesmith',
+    FavoriteColor: 'Turquoise',
+    Pet: 'Golden Retriever named Max',
+  };
+
+  // function showData(data) {
+  //   if (!isExecuted) {
+  //     isExecuted = true;
+  //     console.log("from scanner",JSON.stringify(data.fakeData))
+  //     router.push(`/show_data?data=${JSON.stringify(data.fakeData)}`)
+  //   }
+  //   if (!throttleTimer) {
+  //     throttleTimer = setTimeout(() => {
+  //       isExecuted = false;
+  //       console.log("Function executed after throttleeeeeee!");
+  //       throttleTimer = null;
+  //     }, 1000);
+  //   }
+  // }
+
+ 
+  function showData(data) {
+    if (!isExecuted) {
+      isExecuted = true;
+      console.log("from scanner camera",JSON.stringify(data))
+      router.push(`/show_data?data=${JSON.stringify(data)}`)
+    }
+    if (!throttleTimer) {
+      throttleTimer = setTimeout(() => {
+        isExecuted = false;
+        console.log("Function executed after throttleeeeeee!");
+        throttleTimer = null;
+      }, 1000);
+    }
   }
-}
 
 
   if (!permission) {
-    // Camera permissions are still loading.
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
@@ -60,17 +78,16 @@ function showData(data) {
   return (
     <View style={styles.container}>
       <CameraView style={styles.camera} facing={facing} barcodeScannerSettings={{
-    barcodeTypes: ["qr"],
-//   }} onBarcodeScanned={({ data }) => console.log(data)}>
-  // }} onBarcodeScanned={({ data }) => router.push('/(tabs)/show_qr' + '?data=' + data)}>
-  }} onBarcodeScanned={({ data }) => showData(data)}>
+        barcodeTypes: ["qr"],
+      }} onBarcodeScanned={({ data }) => showData(data)}>
+      {/* }} onBarcodeScanned={({ data }) => console.log(data)}> */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
             <Text style={styles.text}>Flip Camera</Text>
           </TouchableOpacity>
-        </View> 
+        </View>
       </CameraView>
-      <Button onPress={() => showData("hell000o")} title="show data" />
+      <Button onPress={() => showData({ fakeData })} title="show data" />
     </View>
   );
 }
