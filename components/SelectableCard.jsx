@@ -2,7 +2,8 @@ import { Alert, Modal, Pressable, TextInput, StyleSheet, Text, View, ScrollView 
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { useCardData } from './store';
+import { useSelectedCard } from './store';
 
 
 // function MyCheckbox({ onChange, checked }) {
@@ -18,20 +19,46 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 //   }
 
 
-const TextEditor = () => {
-    return (
-        <Text>TextEditor</Text>
-    )
-}
-
 const SelectableCard = (props) => {
+
+    const cardData = useCardData((state) => state.cardData);
+    let t,v,id;
+    for (let i = 0; i < cardData.length; i++) {
+        if (cardData[i].id === props.id) {
+            t = cardData[i].title;
+            v = cardData[i].value;
+            id = cardData[i].id
+            break
+        }
+    }
+
+    const updateData = useCardData((state) => state.updateData);
+    const selectedCard = useSelectedCard((state) => state.selectedCard);
+    const addSelectedCard = useSelectedCard((state) => state.addSelectedCard);
+    const removeSelectedCard = useSelectedCard((state) => state.removeSelectedCard);
+
+
     const [checked, setChecked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [title, setTitle] = useState('');
-    const [text, setText] = useState('');
+    // const [title, setTitle] = useState('');
+    // const [text, setText] = useState('');
+    const [title, setTitle] = useState(t);
+    const [text, setText] = useState(v);
 
     const save = () => {
         setModalVisible(!modalVisible)
+        // useCardData.setState((state) => ({ cardData: state.cardData.map((item) => item.id === id ? { ...item, title, value: text } : item) }))
+        updateData(id, title, text)
+    }
+
+    const checkboxHandler = () => {
+        setChecked(!checked);
+        // useSelectedCard.setState((state) => ({ selectedCard: state.selectedCard.push(id) }))
+        if (checked) {
+            removeSelectedCard(id)
+        } else {
+            addSelectedCard(id)
+        }
     }
 
     return (
@@ -39,63 +66,63 @@ const SelectableCard = (props) => {
             <View style={styles.card}>
                 {/* <Pressable style={styles.textContainer} onPress={() => <TextEditor />}> */}
                 <Pressable style={styles.textContainer} onPress={() => setModalVisible(true)}>
-                    <Text style={styles.checkboxLabel}>{props.title}</Text>
-                    <Text style={styles.checkboxLabe2}>{props.value}</Text>
+                    <Text style={styles.checkboxLabel}>{t}</Text>
+                    <Text style={styles.checkboxLabe2}>{v}</Text>
                 </Pressable>
                 <Pressable
                     role="checkbox"
                     aria-checked={checked}
                     style={[styles.checkboxBase, checked && styles.checkboxChecked]}
-                    onPress={() => setChecked(!checked)}>
+                    onPress={() => checkboxHandler()}>
                     {checked && <Ionicons name="checkmark" size={24} color="white" />}
                 </Pressable>
             </View>
 
             <SafeAreaProvider style={styles.container}>
-            <SafeAreaView style={styles.centeredView}>
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        Alert.alert('Modal has been closed.');
-                        setModalVisible(!modalVisible);
-                    }}>
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <Pressable
-                                style={[styles.buttonClose]}
-                                onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={styles.buttonText}>X</Text>
-                            </Pressable>
-                            <TextInput
-                                style={styles.titleInput}
-                                placeholder="Title..."
-                                onChangeText={(text) => setTitle(text)}
-                                value={title}
-                            />
-                            <TextInput
-                                style={styles.textInput}
-                                placeholder="Type here..."
-                                onChangeText={(text) => setText(text)}
-                                value={text}
-                                multiline
-                            />
-                            <Pressable
-                                style={[styles.buttonSave]}
-                                onPress={() => save()}>
-                                <Text style={styles.buttonText}>Save</Text>
-                            </Pressable>
+                <SafeAreaView style={styles.centeredView}>
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            Alert.alert('Modal has been closed.');
+                            setModalVisible(!modalVisible);
+                        }}>
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Pressable
+                                    style={[styles.buttonClose]}
+                                    onPress={() => setModalVisible(!modalVisible)}>
+                                    <Text style={styles.buttonText}>X</Text>
+                                </Pressable>
+                                <TextInput
+                                    style={styles.titleInput}
+                                    placeholder="Title..."
+                                    onChangeText={(text) => setTitle(text)}
+                                    value={title}
+                                />
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="Type here..."
+                                    onChangeText={(text) => setText(text)}
+                                    value={text}
+                                    multiline
+                                />
+                                <Pressable
+                                    style={[styles.buttonSave]}
+                                    onPress={() => save()}>
+                                    <Text style={styles.buttonText}>Save</Text>
+                                </Pressable>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-                {/* <Pressable
+                    </Modal>
+                    {/* <Pressable
                     style={[styles.buttonOpen, styles.button]}
                     onPress={() => setModalVisible(true)}>
                     <Text style={styles.textStyle}>Show Modal</Text>
                 </Pressable> */}
-            </SafeAreaView>
-        </SafeAreaProvider>
+                </SafeAreaView>
+            </SafeAreaProvider>
         </View>
     )
 }
@@ -243,5 +270,7 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1,
         padding: 10,
+        justifyContent: 'flex-start',
+        textAlignVertical: 'top',
     },
 })

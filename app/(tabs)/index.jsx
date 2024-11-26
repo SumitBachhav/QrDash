@@ -1,4 +1,4 @@
-import { TextInput, Alert, Modal, StyleSheet, Platform, View, Text, Pressable, ScrollView } from 'react-native';
+import { TextInput, Alert, Modal, StyleSheet, Platform, View, Text, Pressable, ScrollView, Button } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -9,17 +9,30 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useCount } from '../../components/store';
+import { useCardData } from '../../components/store';
+import { useSelectedCard } from '../../components/store';
 
 
 
 
 export default function HomeScreen() {
 
+  const count = useCount((state) => state.count);
+  const increment = useCount((state) => state.increment);
+  const decrement = useCount((state) => state.decrement);
+
+  const cardData = useCardData((state) => state.cardData);
+  const addCentralData = useCardData((state) => state.addData);
+
+  const selectedCard = useSelectedCard((state) => state.selectedCard);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const save = () => {
     setModalVisible(!modalVisible)
+    addCentralData()
   }
 
 
@@ -27,72 +40,88 @@ export default function HomeScreen() {
     setModalVisible(true);
   }
 
-  const cardData = [
-    {
-      id: 1,
-      title: 'Card 1',
-      value: 'Value 1',
-    },
-    {
-      id: 2,
-      title: 'Card 2',
-      value: 'Value 2',
-    },
-    {
-      id: 3,
-      title: 'Card 3',
-      value: 'Value 3',
-    },
-    {
-      id: 4,
-      title: 'Card 4',
-      value: 'Value 4',
-    },
-    {
-      id: 5,
-      title: 'Card 5',
-      value: 'Value 5',
-    },
-    {
-      id: 6,
-      title: 'Card 6',
-      value: 'Value 6',
-    },
-    {
-      id: 7,
-      title: 'Card 7',
-      value: 'Value 7',
-    },
-    {
-      id: 8,
-      title: 'Card 8',
-      value: 'Value 8',
-    },
-    {
-      id: 9,
-      title: 'Card 9',
-      value: 'Value 9',
-    },
-    {
-      id: 10,
-      title: 'Card 10',
-      value: 'Value 10',
-    },
-  ]
+  // const cardData = [
+  //   {
+  //     id: 1,
+  //     title: 'Card 1',
+  //     value: 'Value 1',
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'Card 2',
+  //     value: 'Value 2',
+  //   },
+  //   {
+  //     id: 3,
+  //     title: 'Card 3',
+  //     value: 'Value 3',
+  //   },
+  //   {
+  //     id: 4,
+  //     title: 'Card 4',
+  //     value: 'Value 4',
+  //   },
+  //   {
+  //     id: 5,
+  //     title: 'Card 5',
+  //     value: 'Value 5',
+  //   },
+  //   {
+  //     id: 6,
+  //     title: 'Card 6',
+  //     value: 'Value 6',
+  //   },
+  //   {
+  //     id: 7,
+  //     title: 'Card 7',
+  //     value: 'Value 7',
+  //   },
+  //   {
+  //     id: 8,
+  //     title: 'Card 8',
+  //     value: 'Value 8',
+  //   },
+  //   {
+  //     id: 9,
+  //     title: 'Card 9',
+  //     value: 'Value 9',
+  //   },
+  //   {
+  //     id: 10,
+  //     title: 'Card 10',
+  //     value: 'Value 10',
+  //   },
+  // ]
 
-  let lastCardId = 1;
 
   const addData = () => {
     // setCardData((prevData) => [...prevData, { id: prevData.length + 1, title: `Card ${prevData.length + 1}`, value: `Value ${prevData.length + 1}` }]);
   };
 
+  
+ 
+
   return (
     <View style={styles.container}>
+
+      {/* <Text>Selected Card: {selectedCard}</Text> */}
+
       <ScrollView>
         {cardData.map((card) => (
-          <SelectableCard key={card.id} title={card.title} value={card.value} />
+          <SelectableCard key={card.id} title={card.title} value={card.value} id={card.id} />
         ))}
       </ScrollView>
+
+      {/* <Text>{count}</Text> */}
+
+      {/* <Button
+      title='increment'
+      onPress={increment}
+      />
+      <Button
+      title='decrement'
+      onPress={decrement}
+      /> */}
 
       <SafeAreaProvider style={styles.mContainer}>
         <SafeAreaView style={styles.centeredView}>
@@ -254,6 +283,8 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     padding: 10,
+    justifyContent: 'flex-start',
+    textAlignVertical: 'top',
   },
 
 });
