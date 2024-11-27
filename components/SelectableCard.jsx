@@ -22,7 +22,7 @@ import { useSelectedCard } from './store';
 const SelectableCard = (props) => {
 
     const cardData = useCardData((state) => state.cardData);
-    let t,v,id;
+    let t, v, id;
     for (let i = 0; i < cardData.length; i++) {
         if (cardData[i].id === props.id) {
             t = cardData[i].title;
@@ -37,8 +37,11 @@ const SelectableCard = (props) => {
     const addSelectedCard = useSelectedCard((state) => state.addSelectedCard);
     const removeSelectedCard = useSelectedCard((state) => state.removeSelectedCard);
 
+    let checked = selectedCard?.includes(id);
 
-    const [checked, setChecked] = useState(false);
+
+
+    // const [checked, setChecked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     // const [title, setTitle] = useState('');
     // const [text, setText] = useState('');
@@ -52,13 +55,13 @@ const SelectableCard = (props) => {
     }
 
     const checkboxHandler = () => {
-        setChecked(!checked);
         // useSelectedCard.setState((state) => ({ selectedCard: state.selectedCard.push(id) }))
         if (checked) {
             removeSelectedCard(id)
         } else {
             addSelectedCard(id)
         }
+        checked = (selectedCard?.includes(id));
     }
 
     return (
@@ -172,7 +175,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#A9A8AD',
         padding: 20,
         margin: 5,
         borderRadius: 10,

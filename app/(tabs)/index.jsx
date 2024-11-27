@@ -1,5 +1,6 @@
-import { TextInput, Alert, Modal, StyleSheet, Platform, View, Text, Pressable, ScrollView, Button } from 'react-native';
+import { TextInput, Alert, Modal, StyleSheet, Platform, View, Text, Pressable, ScrollView, Button, Linking } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -18,6 +19,9 @@ import { useSelectedCard } from '../../components/store';
 
 export default function HomeScreen() {
 
+  const router = useRouter();
+
+
   const count = useCount((state) => state.count);
   const increment = useCount((state) => state.increment);
   const decrement = useCount((state) => state.decrement);
@@ -26,18 +30,30 @@ export default function HomeScreen() {
   const addCentralData = useCardData((state) => state.addData);
 
   const selectedCard = useSelectedCard((state) => state.selectedCard);
+  const resetSelectedCard = useSelectedCard((state) => state.resetSelectedCard);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const save = () => {
-    setModalVisible(!modalVisible)
-    addCentralData()
+    if (title === '' || text === '') {
+      // setModalVisible(!modalVisible)
+      alert('Please enter title and text')
+      return
+    } else {
+      setModalVisible(!modalVisible)
+      addCentralData(title, text)
+      setTitle('')
+      setText('')
+    }
+
   }
 
+  const removeSelectedCard = useSelectedCard((state) => state.removeSelectedCard);
 
   const openModal = () => {
     setModalVisible(true);
+    // removeSelectedCard(5)
   }
 
   // const cardData = [
@@ -94,27 +110,40 @@ export default function HomeScreen() {
   // ]
 
 
-  const addData = () => {
-    // setCardData((prevData) => [...prevData, { id: prevData.length + 1, title: `Card ${prevData.length + 1}`, value: `Value ${prevData.length + 1}` }]);
-  };
+  const selectedId = selectedCard
+  selectedId.sort()
+  let shareObject = {}
+  const share = () => {
+    if (selectedCard.length > 0) {
+      cardData.map((item) => { return selectedId.includes(item.id) ? shareObject[item.title] = item.value : item })
+      console.log(shareObject)
+      // router.push(`/show_qr`)
+      router.push(`/show_qr?data=${JSON.stringify(shareObject)}`)
+    }
+    resetSelectedCard()
+  }
 
-  
- 
+
+
+
 
   return (
-    <View style={styles.container}>
+    <SafeAreaProvider>
+      {/* <SafeAreaView> */}
+      {/* <View style={styles.container}> */}
+      <SafeAreaView style={styles.container}>
 
-      {/* <Text>Selected Card: {selectedCard}</Text> */}
+        {/* <Text>Selected Card: {selectedCard}</Text> */}
 
-      <ScrollView>
-        {cardData.map((card) => (
-          <SelectableCard key={card.id} title={card.title} value={card.value} id={card.id} />
-        ))}
-      </ScrollView>
+        <ScrollView>
+          {cardData.map((card) => (
+            <SelectableCard key={card.id} title={card.title} value={card.value} id={card.id} />
+          ))}
+        </ScrollView>
 
-      {/* <Text>{count}</Text> */}
+        {/* <Text>{count}</Text> */}
 
-      {/* <Button
+        {/* <Button
       title='increment'
       onPress={increment}
       />
@@ -123,53 +152,66 @@ export default function HomeScreen() {
       onPress={decrement}
       /> */}
 
-      <SafeAreaProvider style={styles.mContainer}>
-        <SafeAreaView style={styles.centeredView}>
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-              setModalVisible(!modalVisible);
-            }}>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Pressable
-                  style={[styles.buttonClose]}
-                  onPress={() => setModalVisible(!modalVisible)}>
-                  <Text style={styles.buttonX}>X</Text>
-                </Pressable>
-                <TextInput
-                  style={styles.titleInput}
-                  placeholder="Title..."
-                  onChangeText={(text) => setTitle(text)}
-                  value={title}
-                />
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Type here..."
-                  onChangeText={(text) => setText(text)}
-                  value={text}
-                  multiline
-                />
-                <Pressable
-                  style={[styles.buttonSave]}
-                  onPress={() => save()}>
-                  <Text style={styles.buttonX}>Save</Text>
-                </Pressable>
+        {/* <SafeAreaProvider style={styles.mContainer}>
+        <SafeAreaView style={styles.centeredView}> */}
+        <View style={styles.mContainer}>
+          <View style={styles.centeredView}>
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                setModalVisible(!modalVisible);
+              }}>
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Pressable
+                    style={[styles.buttonClose]}
+                    onPress={() => setModalVisible(!modalVisible)}>
+                    <Text style={styles.buttonX}>X</Text>
+                  </Pressable>
+                  <TextInput
+                    style={styles.titleInput}
+                    placeholder="Title..."
+                    onChangeText={(text) => setTitle(text)}
+                    value={title}
+                  />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Type here..."
+                    onChangeText={(text) => setText(text)}
+                    value={text}
+                    multiline
+                  />
+                  <Pressable
+                    style={[styles.buttonSave]}
+                    onPress={() => save()}>
+                    <Text style={styles.buttonX}>Save</Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          </Modal>
-        </SafeAreaView>
-      </SafeAreaProvider>
+            </Modal>
+          </View>
+        </View>
+        {/* </SafeAreaView>
+      </SafeAreaProvider> */}
 
-      <Pressable style={styles.add}
-        onPress={() => openModal()}
-      >
-        <Text style={styles.addText}> + </Text>
-      </Pressable>
-    </View>
+        <Pressable style={styles.add}
+          onPress={() => openModal()}
+        >
+          <Text style={styles.addText}> + </Text>
+        </Pressable>
+
+        <Pressable style={styles.share}
+          onPress={() => share()}
+        >
+          <Text style={styles.addText}> S </Text>
+        </Pressable>
+        {/* </View> */}
+      </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </SafeAreaProvider>
   );
 }
 
@@ -179,12 +221,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5,
-    marginTop: 30
+    marginTop: 30,
+    // backgroundColor: '#f7f9f9',
   },
   add: {
     position: 'absolute',
     bottom: 10,
     right: 10,
+    width: 60,
+    height: 60,
+    backgroundColor: '#58d68d',
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  share: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
     width: 60,
     height: 60,
     backgroundColor: '#58d68d',
@@ -215,7 +274,8 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    padding: 10,
+    paddingTop: 35,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -269,22 +329,32 @@ const styles = StyleSheet.create({
   // },
   titleInput: {
     height: 40,
-    width: 300,
-    borderColor: 'gray',
-    borderWidth: 1,
+    width: '95%',
+    // borderColor: 'gray',
+    // borderWidth: 1,
     padding: 10,
     marginBottom: 10,
     fontSize: 18,
     fontWeight: 'bold',
+    shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 10,
+    backgroundColor: '#f7f9f9',
   },
   textInput: {
     height: '80%',
-    width: 300,
-    borderColor: 'gray',
-    borderWidth: 1,
+    width: '95%',
+    // borderColor: 'gray',
+    // borderWidth: 1,
     padding: 10,
     justifyContent: 'flex-start',
     textAlignVertical: 'top',
+    backgroundColor: '#f7f9f9',
   },
 
 });
